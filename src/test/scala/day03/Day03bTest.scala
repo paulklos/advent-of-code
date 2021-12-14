@@ -1,9 +1,6 @@
 package day03;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.Test;
-import scala.Unit;
+import org.junit.{Assert, Test};
 
 class Day03bTest {
 
@@ -22,15 +19,15 @@ class Day03bTest {
         "01010")
 
     @Test
-    def testOxygenGenerator() {
+    def testOxygenGenerator(): Unit = {
         val result = Day03b.find(bitCount => bitCount.moreOnes, '1', '0')(testValues, 0)
         println(result)
         Assert.assertEquals("10111", result)
     }
 
     @Test
-    def testCO2Scrubber() {
-        val result = Day03b.find(bitCount => bitCount.moreZeros, '0', '1')(testValues, 0)
+    def testCO2Scrubber(): Unit = {
+        val result = Day03b.find(bitCount => bitCount.fewerZeros, '0', '1')(testValues, 0)
         println(result)
         Assert.assertEquals("01010", result)
     }

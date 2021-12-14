@@ -3,42 +3,34 @@ package day03
 import java.util.function.Predicate
 import scala.annotation.tailrec
 import scala.io.Source
+import day03.Day03a.count
+import day03.Day03a.BitCount
 
 object Day03b extends App {
-
-  case class BitCount(zero: Int, one: Int) {
-    def moreOnes = one >= zero
-    def moreZeros = zero <= one
-  }
-
-  def count(count: List[BitCount], input: String): List[BitCount] = {
-
-    val single = input.foldLeft(List(): List[BitCount])((a: List[BitCount], c: Char) => {
-      c.asDigit match {
-        case 0 => a.appended(BitCount(1, 0))
-        case 1 => a.appended(BitCount(0, 1))
-      }
-    })
-
-    count match {
-      case Nil => single
-      case _ => count.zip(single).map(pair => BitCount(pair._1.zero + pair._2.zero, pair._1.one + pair._2.one))
-    }
-  }
 
   def filter(readings: List[String], filterValue: Char, position: Int): List[String] = {
     println("Filtering for " + filterValue + " in position " + position)
     readings.filter(value => value(position) == filterValue)
   }
 
+  /*
+   * Recursively loop over the list of readings, until there's only one left, which is the result.
+   *
+   * First, the bit counts of the list are determined, then the predicate is applied to the bit count
+   * for the given position.
+   *
+   * Depending on the predicate, the list is further filtered for either the filterValue or its inverse in the given position.
+   */
   @tailrec
   def find(predicate: Predicate[BitCount], filterValue: Char, inverse: Char)(readings: List[String], position: Int): String = {
 
     println(readings)
 
     readings match {
+      // Single result left
       case x::Nil => x
       case _::_ =>
+        // Determine the bit counts
         val bitCounts = readings.foldLeft(Nil: List[BitCount])(count)
         println(bitCounts)
         val bitCount = bitCounts(position)
@@ -58,7 +50,7 @@ object Day03b extends App {
   lines.close()
 
   val oxy = find(bitCount => bitCount.moreOnes, '1', '0')(linesList, 0)
-  val co2 = find(bitCount => bitCount.moreZeros, '0', '1')(linesList, 0)
+  val co2 = find(bitCount => bitCount.fewerZeros, '0', '1')(linesList, 0)
 
   println("Oxy: " + oxy)
   println("CO2: " + co2)
