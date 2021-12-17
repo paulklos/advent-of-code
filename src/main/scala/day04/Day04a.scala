@@ -6,9 +6,11 @@ import scala.io.Source
 
 class Card {
 
+  // Mutable Sets for each row and column, so we can remove values when they're drawn
   private val rows = (for (x <- 0 to 4) yield new mutable.HashSet[Int]()).toList
   private val cols = (for (x <- 0 to 4) yield new mutable.HashSet[Int]()).toList
 
+  // Index numbers on the card to the value: value -> coordinates (row, col)
   private val valueMap: mutable.Map[Int, (Int, Int)] = mutable.Map()
 
   def addRow(row: Int, line: String): Unit = {
@@ -39,8 +41,10 @@ class Card {
   }
 
   def draw(value: Int): Int = {
+    // Locate the number on the card
     val coordinates = valueMap.remove(value)
     if (coordinates.isDefined) {
+      // It's on the card
       val row = rows(coordinates.get._1)
       val col = cols(coordinates.get._2)
       row.remove(value)
@@ -87,17 +91,21 @@ object Day04a extends App {
 
   val cards = readAllCards()
 
-  val drawsFile = getClass.getResource("draw").getFile
-  val draws = Source.fromFile(drawsFile)
+  def readDraw(): List[Int] = {
+    val drawsFile = getClass.getResource("draw").getFile
+    val draws = Source.fromFile(drawsFile)
 
-  val draw = draws.getLines().toList
+    val draw = draws.getLines().toList
 
-  draws.close()
+    draws.close()
 
-  val numbers = draw
-    .filter(numbers => numbers.nonEmpty)
-    .flatMap(numbers => numbers.split(","))
-    .map(number => number.toInt)
+    draw
+      .filter(numbers => numbers.nonEmpty)
+      .flatMap(numbers => numbers.split(","))
+      .map(number => number.toInt)
+  }
+
+  val numbers = readDraw()
 
   for (num <- numbers)
     for (card <- cards) {

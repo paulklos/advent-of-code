@@ -1,24 +1,12 @@
 package day04
 
 import scala.annotation.tailrec
-import scala.io.Source
 
 object Day04b extends App {
 
   val cards = Day04a.readAllCards()
 
-  val drawsFile = getClass.getResource("draw").getFile
-  val draws = Source.fromFile(drawsFile)
-
-  val draw = draws.getLines().toList
-
-  draws.close()
-
-  val numbers = draw
-    .filter(numbers => numbers.nonEmpty)
-    .flatMap(numbers => numbers.split(","))
-    .map(number => number.toInt)
-
+  val numbers = Day04a.readDraw()
 
   /*
    * Print out the score of the winning cards, in order of the numbers drawn.
