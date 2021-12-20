@@ -10,10 +10,8 @@ object Day06a extends App {
     @tailrec
     def spawn(spawned: List[Int], newPopulation: List[Int], population: List[Int]): List[Int] = {
       population match {
-        case x :: Nil =>
-          val newDays = if (x > 0) x - 1 else 6
-          val newSpawned = if (x == 0) 8 :: spawned else spawned
-          newDays :: newPopulation ::: newSpawned
+        case Nil =>
+          newPopulation ::: spawned
         case x :: xs =>
           val newDays = if (x > 0) x - 1 else 6
           val newSpawned = if (x == 0) 8 :: spawned else spawned
@@ -36,9 +34,8 @@ object Day06a extends App {
     }
   }
 
-  def readPopulation(): List[Int] = {
-    val populationFile = getClass.getResource("input").getFile
-    val populationSource = Source.fromFile(populationFile)
+  def readPopulation(file: String): List[Int] = {
+    val populationSource = Source.fromFile(file)
 
     val populationLines = populationSource.getLines().toList
 
@@ -50,7 +47,7 @@ object Day06a extends App {
       .map(number => number.toInt)
   }
 
-  val lanternFish = readPopulation()
+  val lanternFish = readPopulation(getClass.getResource("input").getFile)
 
   val day80 = addDays(80, lanternFish)
 

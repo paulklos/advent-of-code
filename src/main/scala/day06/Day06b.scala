@@ -1,7 +1,6 @@
 package day06
 
 import scala.annotation.tailrec
-import scala.io.Source
 
 object Day06b extends App {
 
@@ -29,9 +28,8 @@ object Day06b extends App {
       }
 
       keys match {
-        case x :: Nil =>
-          newAcc(x, population(x))
-        case x :: xs =>
+        case Nil => acc
+        case x::xs =>
           spawn(newAcc(x, population(x)), xs)
       }
     }
@@ -49,7 +47,7 @@ object Day06b extends App {
     }
 
     values match {
-      case x::Nil => addValue(acc, x)
+      case Nil => acc
       case x::xs => toMap(addValue(acc, x), xs)
     }
   }
@@ -68,7 +66,7 @@ object Day06b extends App {
     }
   }
 
-  val lanternFish = Day06a.readPopulation()
+  val lanternFish = Day06a.readPopulation(getClass.getResource("input").getFile)
 
   val lookup = toMap(Map(), lanternFish)
 
