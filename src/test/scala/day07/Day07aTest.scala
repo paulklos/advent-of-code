@@ -1,6 +1,6 @@
 package day07
 
-import day07.Day07a.{determineCostPerPosition, determineRange}
+import day07.Day07a.{determineFixedCostPerPosition, determineRange}
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -46,7 +46,7 @@ class Day07aTest {
   def example(): Unit = {
     val positions = List(16,1,2,0,4,2,7,1,2,14)
 
-    val result = determineCostPerPosition(positions)
+    val result = determineFixedCostPerPosition(positions)
 
     println(result)
     assertEquals(41L, result(1))

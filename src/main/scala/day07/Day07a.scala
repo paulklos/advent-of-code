@@ -27,7 +27,7 @@ object Day07a extends App {
     rangeIter((MAX_VALUE, MIN_VALUE), values)
   }
 
-  def determineCostPerPosition(positions: List[Int]): Map[Int, Long] = {
+  def determineCostPerPosition(fPositionCost: (Int, Int) => Long)(positions: List[Int]): Map[Int, Long] = {
     val frequencies = toMap(Map(), positions)
     val range = determineRange(frequencies.keys.toList)
 
@@ -36,13 +36,17 @@ object Day07a extends App {
       if (position > range._2) acc
       else {
         val positionCost = frequencies.keys.foldLeft(0L)((acc, key) => {
-          acc + Math.abs(key - position) * frequencies(key)
+          acc + fPositionCost(key, position) * frequencies(key)
         })
         iter(position + 1, acc + (position -> positionCost))
       }
     }
 
     iter(range._1, Map())
+  }
+
+  def determineFixedCostPerPosition(positions: List[Int]): Map[Int, Long] = {
+    determineCostPerPosition((key, position) => Math.abs(key - position))(positions)
   }
 
   val positions = readPopulation(getClass.getResource("input").getFile)
@@ -54,7 +58,7 @@ object Day07a extends App {
   val positionRange = determineRange(frequencies.keys.toList)
   println(positionRange)
 
-  val costPerPosition = determineCostPerPosition(positions)
+  val costPerPosition = determineFixedCostPerPosition(positions)
   println(costPerPosition.minBy(_._2))
 
 }
