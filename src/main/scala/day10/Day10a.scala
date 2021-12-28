@@ -1,11 +1,15 @@
 package day10
 
 import day08.Day08a.readInput
-import day10.ParseResult.values
+import day10.ParseResult.{closingMatches, values}
 
 import scala.collection.mutable
 
 case class ParseResult(state: mutable.Stack[Char] = mutable.Stack(), invalid: Char = 0) {
+
+  def getCompletionString: String = {
+    state.foldLeft("")((acc, c) => acc + closingMatches(c))
+  }
 
   def isCorrupted: Boolean = {
     invalid > 0
@@ -15,7 +19,7 @@ case class ParseResult(state: mutable.Stack[Char] = mutable.Stack(), invalid: Ch
     state.nonEmpty
   }
 
-  def value: Int = {
+  def value: Long = {
     values(invalid)
   }
 
@@ -24,10 +28,16 @@ case class ParseResult(state: mutable.Stack[Char] = mutable.Stack(), invalid: Ch
 object ParseResult {
 
   // Maps closing brackets to their corresponding opening bracket
-  val matches: Map[Char, Char] = Map(')' -> '(', '}' -> '{', ']' -> '[', '>' -> '<')
+  val openingMatches: Map[Char, Char] = Map(')' -> '(', '}' -> '{', ']' -> '[', '>' -> '<')
+
+  // Maps opening brackets to their corresponding closing bracket
+  val closingMatches: Map[Char, Char] = for ((k, v) <- openingMatches) yield v -> k
 
   // Error value of the unexpected characters
-  val values: Map[Char, Char] = Map(')' -> 3, '}' -> 1197, ']' -> 57, '>' -> 25137)
+  val values: Map[Char, Long] = Map(')' -> 3L, '}' -> 1197L, ']' -> 57L, '>' -> 25137L)
+
+  // Scoring value of the completion characters
+  val completionValues: Map[Char, Long] = Map(')' -> 1L, ']' -> 2L, '}' -> 3L, '>' -> 4L)
 
   def isLeft(c: Char): Boolean = {
     "({[<".contains(c)
@@ -38,7 +48,7 @@ object ParseResult {
   }
 
   def matchingLeft(c: Char): Char = {
-    matches(c)
+    openingMatches(c)
   }
 
 }
