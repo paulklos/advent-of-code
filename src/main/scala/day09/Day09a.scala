@@ -4,7 +4,7 @@ import day08.Day08a.readInput
 
 object Day09a extends App {
 
-  case class PointData(low: Boolean, risk: Int = 0)
+  case class PointData(x: Int, y:Int, low: Boolean, risk: Int = 0)
 
   def parseLine(line: String): List[Int] = {
     line.foldLeft(List[Int]())((acc, c) => acc appended c.asDigit)
@@ -29,7 +29,7 @@ object Day09a extends App {
         val verticalLow = (for (xi <- y - 1 to y + 1 by 2 if xi >= 0 && xi < heights.size) yield heights(xi)(x) > height)
           .foldLeft(true)((acc, value) => value && acc)
 
-        if (verticalLow && horizontalLow) PointData(low = true, height + 1) else PointData(low = false)
+        if (verticalLow && horizontalLow) PointData(x, y, low = true, height + 1) else PointData(x, y, low = false)
       }
     }
   }

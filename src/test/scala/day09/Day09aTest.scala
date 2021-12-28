@@ -39,10 +39,10 @@ class Day09aTest {
 
     val result = determineLowPoints(lines)
 
-    assertEquals(PointData(low = true, 2), result.head.head)
-    assertEquals(PointData(low = false), result.head(1))
-    assertEquals(PointData(low = false), result(1).head)
-    assertEquals(PointData(low = true, 3), result(1)(1))
+    assertEquals(PointData(0, 0, low = true, 2), result.head.head)
+    assertEquals(PointData(1, 0, low = false), result.head(1))
+    assertEquals(PointData(0, 1, low = false), result(1).head)
+    assertEquals(PointData(1, 1, low = true, 3), result(1)(1))
   }
 
   @Test
