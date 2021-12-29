@@ -1,6 +1,6 @@
 package day11
 
-import day08.Day08a.readInput
+import day08.Day08a.{lines, readInput}
 
 import scala.annotation.tailrec
 
@@ -101,6 +101,21 @@ case class DumboOctopuses(height: Int, width: Int) {
     }
 
     iter(0, steps)
+  }
+
+  def firstSimultaneous: Long = {
+
+    @tailrec
+    def iter(stepNo: Long): Long = {
+      val flashes = step
+      println(f"Step $stepNo, $flashes flashes.")
+      if (flashes == width * height)
+        stepNo
+      else
+        iter(stepNo + 1)
+    }
+
+    iter(1)
   }
 
   override def toString: String = {
