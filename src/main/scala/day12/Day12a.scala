@@ -2,8 +2,6 @@ package day12
 
 import day08.Day08a.readInput
 
-import scala.annotation.tailrec
-
 case class Cave(name: String) {
 
   def isSmall: Boolean = {
@@ -102,14 +100,15 @@ object Day12a extends App {
     def addCaveToPath(paths: List[List[Cave]], cave: Cave, routesLeft: Map[Cave, List[Cave]]): List[List[Cave]] = {
       // Updated paths, with the cave added
       val newPaths = paths.map(path => cave :: path)
-      // Where to go next
-      val destinations = routesLeft.get(cave)
-      // Remove a small cave from the routes
-      val newRoutes = if (cave.isSmall) removeCave(routesLeft, cave) else routesLeft
 
-      // Terminating conditions
+      // Terminating condition
       if (cave == endCave) newPaths
       else {
+        // Where to go next
+        val destinations = routesLeft.get(cave)
+        // Remove a small cave from the routes
+        val newRoutes = if (cave.isSmall) removeCave(routesLeft, cave) else routesLeft
+
         // No where left to go => dead end
         if (destinations.isEmpty) Nil
         else {
@@ -122,13 +121,15 @@ object Day12a extends App {
     }
 
     // Start with an empty list and determine the paths
-    val paths = addCaveToPath(List(List()), startCave, routes)
+    addCaveToPath(List(List()), startCave, routes)
+  }
+
+  def orderPaths(paths: List[List[Cave]]): List[List[Cave]] = {
     // Since the next destinations are prepended, the paths must be reversed
     val ordered = paths.map(list => list.reverse)
     println("Found paths" + ordered.map(l => printPath(l)))
     ordered
   }
-
 
   def printPath(path: List[Cave]): String = {
     path.map(c => c.name).mkString(",")
@@ -136,7 +137,7 @@ object Day12a extends App {
 
   val lines = readInput(getClass.getResource("input").getFile)
   val routes = pathMap(lines)
-  val paths = getAllPaths(routes)
+  val paths = orderPaths(getAllPaths(routes))
 
   println("Total number of paths: " + paths.size)
 }

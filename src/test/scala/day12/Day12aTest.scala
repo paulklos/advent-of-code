@@ -1,7 +1,7 @@
 package day12
 
 import day08.Day08a.readInput
-import day12.Day12a.{pathMap, getAllPaths, printPath, removeCave}
+import day12.Day12a.{getAllPaths, orderPaths, pathMap, printPath, removeCave}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
 import org.junit.Test
 import org.scalatest.Assertions
@@ -80,7 +80,7 @@ class Day12aTest {
     val lines = readInput(getClass.getResource("testInput1").getFile)
     val routes = pathMap(lines)
 
-    val result = getAllPaths(routes).map(l => printPath(l))
+    val result = orderPaths(getAllPaths(routes)).map(l => printPath(l))
 
     assertEquals(10, result.size)
     assertTrue(result.contains("start,A,b,A,c,A,end"))
