@@ -1,5 +1,7 @@
 package day05
 
+import day05.day05a.determineMax
+
 import scala.annotation.tailrec
 import scala.io.Source
 
@@ -58,22 +60,7 @@ object day05b extends App {
 
   def countPoints(lines: List[Line]):Array[Array[Int]] = {
 
-    @tailrec
-    def determineMax(acc: (Int, Int), lines: List[(Int, Int)]): (Int, Int) = {
-
-      def getMax(current: (Int, Int)): (Int, Int) = {
-        val maxX = if (current._1 > acc._1) current._1 else acc._1
-        val maxY = if (current._2 > acc._2) current._2 else acc._2
-        (maxX, maxY)
-      }
-
-      lines match {
-        case x::Nil => getMax(x)
-        case x::xs => determineMax(getMax(x), xs)
-      }
-    }
-
-    val dimensions = determineMax((0, 0), lines.flatMap(line => List(line.start, line.end)))
+    val dimensions = determineMax(lines.flatMap(line => List(line.start, line.end)))
 
     println(f"Creating array of ${dimensions._1 + 1} by ${dimensions._2 + 1}")
     val points = Array.ofDim[Int](dimensions._1 + 1, dimensions._2 + 1)

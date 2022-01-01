@@ -50,11 +50,10 @@ object day05a extends App {
     }
   }
 
-  def countPoints(lines: List[Line]):Array[Array[Int]] = {
+  def determineMax(lines: List[(Int, Int)]): (Int, Int) = {
 
     @tailrec
-    def determineMax(acc: (Int, Int), lines: List[(Int, Int)]): (Int, Int) = {
-
+    def iter(acc: (Int, Int), lines: List[(Int, Int)]): (Int, Int) = {
       def getMax(current: (Int, Int)): (Int, Int) = {
         val maxX = if (current._1 > acc._1) current._1 else acc._1
         val maxY = if (current._2 > acc._2) current._2 else acc._2
@@ -62,12 +61,18 @@ object day05a extends App {
       }
 
       lines match {
-        case x::Nil => getMax(x)
-        case x::xs => determineMax(getMax(x), xs)
+        case Nil => acc
+        case x::xs => iter(getMax(x), xs)
       }
     }
 
-    val dimensions = determineMax((0, 0), lines.flatMap(line => List(line.start, line.end)))
+    iter((0,0), lines)
+
+  }
+
+  def countPoints(lines: List[Line]):Array[Array[Int]] = {
+
+    val dimensions = determineMax(lines.flatMap(line => List(line.start, line.end)))
 
     println(f"Creating array of ${dimensions._1 + 1} by ${dimensions._2 + 1}")
     val points = Array.ofDim[Int](dimensions._1 + 1, dimensions._2 + 1)
