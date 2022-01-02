@@ -1,7 +1,7 @@
 package day13
 
 import day08.Day08a.readInput
-import day13.Day13a.{parseCoordinates, parseFolInstructions}
+import day13.Day13a.{parseCoordinates, parseFoldInstructions}
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -36,7 +36,7 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
       "fold along x=5")
 
     When( "The input is parsed")
-    val result = parseFolInstructions(lines)
+    val result = parseFoldInstructions(lines)
 
     Then("The size should be 2")
     result.size shouldEqual 2
@@ -56,9 +56,9 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     grid shouldEqual Grid(12, 8)
 
     And("The three points from the input are set")
-    grid.isSet(2, 1) shouldBe true
-    grid.isSet(7, 1) shouldBe true
-    grid.isSet(3, 11) shouldBe true
+    grid.isVisible(2, 1) shouldBe true
+    grid.isVisible(7, 1) shouldBe true
+    grid.isVisible(3, 11) shouldBe true
   }
 
   "A Grid" should "return the number of visible dots" in {
@@ -85,8 +85,8 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     When("The grid is folded")
     val result = grid.fold(fold)
 
-    Then("The result has a height of 2")
-    result.height shouldEqual 2
+    Then("The result has a height of 1")
+    result.height shouldEqual 1
 
     And("a width of 1")
     result.width shouldEqual 1
@@ -104,7 +104,7 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val result = grid.fold(fold)
 
     Then("The top-left field is set")
-    result.isSet(0, 0) shouldEqual true
+    result.isVisible(0, 0) shouldEqual true
   }
 
   "A grid value that is not set" should "is set when combined with a set value when the grid is folded horizontally" in {
@@ -119,7 +119,7 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val result = grid.fold(fold)
 
     Then("The top-left field is set")
-    result.isSet(0, 0) shouldEqual true
+    result.isVisible(0, 0) shouldEqual true
   }
 
   "A grid value that is set" should "remains set when combined with a set value when the grid is folded horizontally" in {
@@ -134,14 +134,14 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val result = grid.fold(fold)
 
     Then("The top-left field is set")
-    result.isSet(0, 0) shouldEqual true
+    result.isVisible(0, 0) shouldEqual true
   }
 
   "The example grid" should " have 17 visible dots after the first fold" in {
     Given("An example input file")
-    val lines = readInput(getClass.getResource("testInput").getFile)
+    val lines = readInput(getClass.getResource("testInput1").getFile)
     val coordinates = parseCoordinates(lines)
-    val foldInstructions = parseFolInstructions(lines)
+    val foldInstructions = parseFoldInstructions(lines)
 
     And("a grid created from that")
     val grid = Grid.create(coordinates)
@@ -158,9 +158,9 @@ class Day13aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
 
   "The example grid" should " have 16 visible dots after all the folds" in {
     Given("An example input file")
-    val lines = readInput(getClass.getResource("testInput").getFile)
+    val lines = readInput(getClass.getResource("testInput1").getFile)
     val coordinates = parseCoordinates(lines)
-    val foldInstructions = parseFolInstructions(lines)
+    val foldInstructions = parseFoldInstructions(lines)
 
     And("a grid created from that")
     val grid = Grid.create(coordinates)
