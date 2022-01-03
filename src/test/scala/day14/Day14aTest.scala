@@ -1,7 +1,7 @@
 package day14
 
 import day08.Day08a.readInput
-import day14.Day14a.{lines, parseInsertionRules}
+import day14.Day14a.parseInsertionRules
 import org.scalatest.GivenWhenThen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
