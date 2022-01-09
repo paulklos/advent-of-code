@@ -44,6 +44,7 @@ object Packet {
 
   def hexToBinary(hex: String): String = {
     val binaryString = BigInt(hex, 16).toString(2)
+    // Scala leaves out any leading zeros, but we need them
     ("0" * (4 * hex.length - binaryString.length)) + binaryString
   }
 
@@ -81,32 +82,24 @@ object Operator {
   def parse(header: Header, input: String, pointer: Int): Operator = {
 
     @tailrec
-    def readSubPackets(acc: List[Packet], currentPos: Int, bitsToRead: Int): List[Packet] = {
+    def readSubPacket(acc: List[Packet], currentPos: Int, countdown: Int)(next: (Packet, Int) => Int): List[Packet] = {
       val packet = Packet.parse(input, currentPos)
       val newAcc = packet :: acc
-      val bitsLeft = bitsToRead - packet.bits
-      if (bitsLeft == 0) newAcc
-      else readSubPackets(newAcc, currentPos + packet.bits, bitsLeft)
-    }
-
-    @tailrec
-    def readSubPacket(acc: List[Packet], currentPos: Int, packetsToRead: Int): List[Packet] = {
-      val packet = Packet.parse(input, currentPos)
-      val newAcc = packet :: acc
-      val packetsLeft = packetsToRead - 1
-      if (packetsLeft == 0) newAcc
-      else readSubPacket(newAcc, currentPos + packet.bits, packetsLeft)
+      next(packet, countdown) match {
+        case 0 => newAcc
+        case toDo => readSubPacket(newAcc, currentPos + packet.bits, toDo)(next)
+      }
     }
 
     val end = pointer + TYPE_ID_BITS
     val operator = input.substring(pointer, end) match {
       case "0" =>
         val subPacketLength = binaryToInt(input.substring(end, end + TYPE_ID_ZERO_BITS))
-        val subPackets = readSubPackets(List(), end + TYPE_ID_ZERO_BITS, subPacketLength)
+        val subPackets = readSubPacket(List(), end + TYPE_ID_ZERO_BITS, subPacketLength)((p, bitsLeft) => bitsLeft - p.bits)
         Operator(header, subPackets, Header.LENGTH + TYPE_ID_BITS + TYPE_ID_ZERO_BITS + subPacketLength)
       case "1" =>
         val subPacketsToRead = binaryToInt(input.substring(end, end + TYPE_ID_ONE_BITS))
-        val subPackets = readSubPacket(List(), end + TYPE_ID_ONE_BITS, subPacketsToRead)
+        val subPackets = readSubPacket(List(), end + TYPE_ID_ONE_BITS, subPacketsToRead)((_, iterations) => iterations - 1)
         Operator(header, subPackets, Header.LENGTH + TYPE_ID_BITS + TYPE_ID_ONE_BITS + subPackets.map(sp => sp.bits).sum)
     }
     println("Operator: " + operator)
@@ -143,7 +136,6 @@ object Literal {
   }
 
 }
-
 
 object Day16a extends App {
 
