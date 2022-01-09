@@ -26,7 +26,7 @@ class Day16aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val operator = parseHex(packet)
 
     Then("The literal is correct")
-    operator shouldEqual Operator(Header(1, 6), List(Literal(Header(2,4), 20, 16), Literal(Header(6,4), 10, 11)), 49)
+    operator shouldEqual Operator(Header(1, 6), List(Literal(Header(6,4), 10, 11), Literal(Header(2,4), 20, 16)), 49)
   }
 
   "An operator packet with type id '1'" should "be parsed correctly" in {
@@ -37,13 +37,8 @@ class Day16aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val operator = parseHex(packet)
 
     Then("The literal is correct")
-    //operator shouldEqual Operator(Header(7, 3), List(Literal(Header(2,4), 1, 11), Literal(Header(4,4), 2, 11), Literal(Header(1,4), 3, 11)), 51)
-    operator match {
-      case Operator(header, subPackets, bits) =>
-        header shouldEqual Header(7, 3)
-        subPackets should contain allOf (Literal(Header(2,4), 1, 11), Literal(Header(4,4), 2, 11), Literal(Header(1,4), 3, 11))
-        bits shouldEqual 51
-    }
+    // USe shouldEqual because the order must match for the operators to work properly
+    operator shouldEqual Operator(Header(7, 3), List(Literal(Header(2,4), 1, 11), Literal(Header(4,4), 2, 11), Literal(Header(1,4), 3, 11)), 51)
   }
 
   "The packet '8A004A801A8002F478'" should "have a version sum of 16" in {
