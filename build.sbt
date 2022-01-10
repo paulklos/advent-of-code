@@ -4,7 +4,7 @@ ThisBuild / scalaVersion := "2.13.7"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "Advent of code 2021"
+    name := "Advent of code"
   )
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test->default"
