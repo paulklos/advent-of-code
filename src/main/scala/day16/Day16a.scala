@@ -13,7 +13,7 @@ case class Header(version: Int, typeId: Int)
 object Header {
 
   val LENGTH = 6
-  val FIELD_LENGTH = 6
+  val FIELD_LENGTH = 3
 
   /**
    * Read two sets of three bits, representing the version and the type id.
