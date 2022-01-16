@@ -55,17 +55,22 @@ object Velocity {
 
 }
 
-case class Trajectory(route: List[Point], velocity: Velocity) {
+case class Trajectory(route: List[Point], velocity: Velocity, initial: Velocity) {
+
+  def this(route: List[Point], velocity: Velocity) = this(route, velocity, velocity)
 
   def next: Trajectory = {
-    Trajectory(route.head.move(velocity) :: route, velocity.next)
+    Trajectory(route.head.move(velocity) :: route, velocity.next, initial)
   }
 
   def highest: Point = route.sorted(Trajectory.HeightOrdering).reverse.head
 }
 
 object Trajectory {
-  def withVelocity(velocity: Velocity): Trajectory = Trajectory(List(Point(0,0)), velocity)
+
+  def apply(route: List[Point], velocity: Velocity) = new Trajectory(route, velocity, velocity)
+
+  def apply(velocity: Velocity) = new Trajectory(List(Point(0,0)), velocity, velocity)
 
   object HeightOrdering extends Ordering[Point] {
     def compare(a: Point, b: Point): Int = a.y compare b.y
@@ -151,17 +156,16 @@ case class Area(topLeft: Point, bottomRight: Point) {
      *
      * @param best the best trajectory so far, if any
      * @param trajectory the trajectory to evaluate
-     * @param initial the initial velocity, used to start the next iteration when the current trajectory ends
      * @return an Option containing the best trajectory, if one was found
      */
     @tailrec
-    def iter(best: Option[Trajectory], trajectory: Trajectory, initial: Velocity): Option[Trajectory] = {
+    def iter(best: Option[Trajectory], trajectory: Trajectory): Option[Trajectory] = {
 
       // The current trajectory ends if it's a hit or if it passes the target area
       val terminate = isInside(trajectory.route.head) || isOver(trajectory.route.head)
       // See if we have a winner
       val newBest = if (isInside(trajectory.route.head)) {
-        println("Hit! Initial velocity was: " + initial)
+        println("Hit! Initial velocity was: " + trajectory.initial)
         best match {
           // We already had a best, so compare
           case Some(b) => if (trajectory.highest.y > b.highest.y) Option(trajectory) else best
@@ -171,27 +175,27 @@ case class Area(topLeft: Point, bottomRight: Point) {
       } else best
 
       if (terminate) {
-        initial match {
+        trajectory.initial match {
           // Max vx reached, the end
           case Velocity(VX_OVER, _) => newBest
           case Velocity(x, MAX_VY) =>
             // Max Y reached, increase vx
             val newV = Velocity(x + 1, 0)
-            iter(newBest, Trajectory.withVelocity(newV), newV)
+            iter(newBest, Trajectory(newV))
           case v: Velocity =>
             // Try the next vy
             val newV = v.incVertical
-            iter(newBest, Trajectory.withVelocity(newV), newV)
+            iter(newBest, Trajectory(newV))
         }
       } else {
         // Next step on the current trajectory
-        iter(newBest, trajectory.next, initial)
+        iter(newBest, trajectory.next)
       }
     }
 
     // We don't even try negative vy, because we're looking for the highest y
     val initialVelocity = Velocity(MIN_VX, 0)
-    iter(Option.empty, Trajectory.withVelocity(initialVelocity), initialVelocity)
+    iter(Option.empty, Trajectory(initialVelocity))
   }
 
   /**
@@ -219,46 +223,45 @@ case class Area(topLeft: Point, bottomRight: Point) {
      *
      * @param acc the list of Velocities that land inside this Area.
      * @param trajectory the Trajectory being evaluated.
-     * @param initial the initial Velocity of the Trajectory
      * @return the list of Velocities
      */
     @tailrec
-    def iter(acc: List[Velocity], trajectory: Trajectory, initial: Velocity): List[Velocity] = {
+    def iter(acc: List[Velocity], trajectory: Trajectory): List[Velocity] = {
       // The current trajectory ends if it's a hit or if it passes the target area
       val terminate = isInside(trajectory.route.head) || isOver(trajectory.route.head)
       // See if we have a winner
       val newAcc = if (isInside(trajectory.route.head)) {
-        println("Inside target area with initial velocity: " + initial)
-        initial :: acc
+        println("Inside target area with initial velocity: " + trajectory.initial)
+        trajectory.initial :: acc
       } else acc
 
       if (isOver(trajectory.route.head))
-        println("Missed target area with initial velocity: " + initial)
+        println("Missed target area with initial velocity: " + trajectory.initial)
 
       if (terminate) {
-        initial match {
+        trajectory.initial match {
           // Max vx reached, the end
           case Velocity(VX_OVER, _) =>
-            println(f"Max VX with initial velocity: $initial, terminate")
+            println(f"Max VX with initial velocity: ${trajectory.initial}, terminate")
             newAcc
           case Velocity(x, MAX_VY) =>
             // Max Y reached, increase vx
-            println(f"Max VY with initial velocity: $initial, next VX")
+            println(f"Max VY with initial velocity: ${trajectory.initial}, next VX")
             val newV = Velocity.min(x + 1, this)
-            iter(newAcc, Trajectory.withVelocity(newV), newV)
+            iter(newAcc, Trajectory(newV))
           case v: Velocity =>
             // Try the next vy
             val newV = v.incVertical
-            iter(newAcc, Trajectory.withVelocity(newV), newV)
+            iter(newAcc, Trajectory(newV))
         }
       } else {
         // Next step on the current trajectory
-        iter(newAcc, trajectory.next, initial)
+        iter(newAcc, trajectory.next)
       }
     }
 
     val initialVelocity = Velocity.min(MIN_VX, this)
-    val velocities = iter(List(), Trajectory.withVelocity(initialVelocity), initialVelocity)
+    val velocities = iter(List(), Trajectory(initialVelocity))
     println("Velocities found: " + velocities)
     velocities
   }

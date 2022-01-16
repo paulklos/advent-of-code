@@ -215,8 +215,8 @@ class Day17aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     And("The next iteration is calculated")
     val next: Trajectory = trajectory.next
 
-    Then("An exception is thrown when next is invoked")
-    next shouldEqual Trajectory(List(Point(1, 4), Point(0,0)), Velocity(0,3))
+    Then("The next point is added to the route, the next velocity is calculated and the initial velocity remains the same")
+    next shouldEqual Trajectory(List(Point(1, 4), Point(0,0)), Velocity(0,3), Velocity(1, 4))
   }
 
   "The example area" should "be reached in 7 steps" in new ExampleArea {
