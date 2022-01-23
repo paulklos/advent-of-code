@@ -9,16 +9,16 @@ class Day18aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
 
   "Adding two Snailfish numbers" should "result in a new SnailFishNumber" in {
     Given("A left operand")
-    val l = Pair(1, 2)
+    val l = Pair(1, 2, 0)
 
     And("a right operand")
-    val r = NumberNode(Pair(3, 4), RegularValue(5))
+    val r = Pair(Pair(3, 4, 1), 5, 0)
 
     When("The values are added")
     val result = l + r
 
     Then("The result is the Pair [[1,2],[3,4],5]")
-    result shouldEqual NumberNode(Pair(1, 2), NumberNode(Pair(3, 4), 5))
+    result shouldEqual Pair(Pair(1, 2, 1), Pair(Pair(3, 4, 2), 5, 1), 0)
   }
 
   "The Snailfish number string [9,8]" can "be parsed into a SnailFishNumber" in {
@@ -26,49 +26,60 @@ class Day18aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
     val input = "[9,8]"
 
     When("The number is parsed")
-    val sfn = NumberNode.parse(input)
+    val sfn = Pair.parse(input)
 
     Then("The number is correct")
-    sfn shouldEqual Pair(9, 8)
+    sfn shouldEqual Pair(9, 8, 0)
   }
 
-//  "The Snailfish number string [9,[8,3]]" can "be parsed into a SnailFishNumber" in {
-//    Given("A number string")
-//    val input = "[9,[8,3]]"
-//
-//    When("The number is parsed")
-//    val sfn = NumberLeaf.parse(input)
-//
-//    Then("The number is correct")
-//    sfn shouldEqual Pair(9, Pair(8, 3))
-//  }
-//
-//  "The Snailfish number string [[[[[9,8],1],2],3],4]" can "be parsed into a SnailFishNumber" in {
-//    Given("A number string")
-//    val input = "[[[[[9,8],1],2],3],4]"
-//
-//    When("The number is parsed")
-//    val sfn = NumberLeaf.parse(input)
-//
-//    Then("The number is correct")
-//    sfn shouldEqual Pair(Pair(Pair(Pair(Pair(9, 8), 1), 2), 3), 4)
-//  }
-//
-//  "The input file" must "be read and parsed correctly" in {
-//    Given("The input file")
-//    val file = getClass.getResource("input").getFile
-//
-//    When("The file is read")
-//    val input = Day08a.readInput(file)
-//
-//    Then("Parsing the line into a Snailfish number and outputting that as a string result in the line")
-//    input.foreach(s => {
-//      val sfn = NumberLeaf.parse(s)
-//      println(sfn)
-//      sfn.toString shouldEqual s
-//    })
-//  }
-//
+  "The Snailfish number string [9,[8,3]]" can "be parsed into a SnailFishNumber" in {
+    Given("A number string")
+    val input = "[9,[8,3]]"
+
+    When("The number is parsed")
+    val sfn = Pair.parse(input)
+
+    Then("The number is correct")
+    sfn shouldEqual Pair(9, Pair(8, 3, 1), 0)
+  }
+
+  "The Snailfish number string [[[[[9,8],1],2],3],4]" can "be parsed into a SnailFishNumber" in {
+    Given("A number string")
+    val input = "[[[[[9,8],1],2],3],4]"
+
+    When("The number is parsed")
+    val sfn = Pair.parse(input)
+
+    Then("The number is correct")
+    sfn shouldEqual Pair(Pair(Pair(Pair(Pair(9, 8, 4), 1, 3), 2, 2), 3, 1), 4, 0)
+  }
+
+  "The Snailfish number string [[2,[[0,2],4]],[1,[8,0]]]" can "be parsed into a SnailFishNumber" in {
+    Given("A number string")
+    val input = "[[2,[[0,2],4]],[1,[8,0]]]"
+
+    When("The number is parsed")
+    val sfn = Pair.parse(input)
+
+    Then("The number is correct")
+    sfn shouldEqual Pair(Pair(2, Pair(Pair(0, 2, 3), 4, 2), 1), Pair(1, Pair(8, 0, 2), 1), 0)
+  }
+
+  "The input file" must "be read and parsed correctly" in {
+    Given("The input file")
+    val file = getClass.getResource("input").getFile
+
+    When("The file is read")
+    val input = Day08a.readInput(file)
+
+    Then("Parsing the line into a Snailfish number and outputting that as a string result in the line")
+    input.foreach(s => {
+      val sfn = Pair.parse(s)
+      println(sfn)
+      sfn.toString shouldEqual s
+    })
+  }
+
 //  "A left pair" can "be exploded" in {
 //    Given("A pair containing one other pair")
 //    val pair = Pair(Pair(2,3),6)

@@ -1,146 +1,59 @@
 package y2021.day18
 
-import y2021.day18.RegularValue.MC_UP
-
-import java.math.{MathContext, RoundingMode}
+import scala.annotation.tailrec
 import scala.language.postfixOps
 
-sealed abstract class NumberLeaf {
-
-  def +(that: NumberLeaf) = NumberNode(this, that)
-
-//  def reduce: NumberLeaf = {
-//
-//    def iter(acc: NumberLeaf, depth: Int, actionDone: Boolean): (NumberLeaf, Boolean) = {
-//      if (actionDone) (acc, actionDone)
-//      else {
-//        acc match {
-//          case p: Pair =>
-//            p.explode(depth) match {
-//              case (n, true) =>
-//                println(f"Exploded pair $p into $n")
-//                (n, true)
-//              case (n, false) =>
-//                println(f"Not exploded pair $p")
-//                iter(n.left, depth + 1, actionDone) match {
-//                  case (newLeft, newAction) =>
-//                    println(f"Left-hand side ${n.left} became $newLeft")
-//                    iter(n.right, depth + 1, newAction) match {
-//                    case (newRight, actionResult) =>
-//                      println(f"Right-hand side ${n.right} became $newRight")
-//                      val pair = Pair(newLeft, newRight)
-//                      println(f"Returning ($pair, $actionResult)")
-//                      (pair, actionResult)
-//                  }
-//                }
-//            }
-//
-//          case RegularValue(v) if v >= 10 =>
-//            val split = RegularValue(v).split
-//            println(f"Splitting regular value $v into $split")
-//            (split, true)
-//          case rv: RegularValue => (rv, actionDone)
-//        }
-//      }
-//    }
-//
-//    iter(this, 1, actionDone = false) match {
-//      case (n, false) =>
-//        println(f"No more changes, returning $n")
-//        n
-//      case (n, true) =>
-//        println(f"Changes made, another round with $n")
-//        n.reduce
-//    }
-//  }
+abstract class Value {
+  def incDepth: Value
+  def +(that: Value) = Pair(this.incDepth, that.incDepth, 0)
 }
 
-object NumberLeaf {
-  private val DIGIT = "([0-9])"r
-
-  def parse(input: String): NumberLeaf = {
-
-    def iter(acc: String, intermediate: Option[NumberLeaf], pos: Int): NumberLeaf = {
-      input.substring(pos, pos + 1) match {
-        case "[" => iter("", Option.empty, pos + 1)
-        case "," => input.substring(pos + 1, pos + 2) match {
-          case "[" =>
-            val leaf = RegularValue.parse(acc)
-            intermediate match {
-              case Some(v) =>
-            }
-            iter("", Option(leaf), pos + 1)
-          case s: String => iter(acc + s, intermediate, pos + 1)
-        }
-        case "]" => Pair.parse(acc)
-      }
-    }
-    iter("", Option.empty, 0)
-  }
-
+case class Regular(value: Int) extends Value {
+  override def incDepth: Value = this
+  override def toString: String = value.toString
 }
+case class Pair(left: Value, right: Value, depth: Int) extends Value {
+  override def incDepth: Value = Pair(left.incDepth, right.incDepth, depth + 1)
 
-case class Pair(left: Int, right: Int) extends NumberLeaf {
-
-//  def explode(depth: Int): (Pair, Boolean) = {
-//    if (depth < 4) (this, false)
-//    else {
-//      left match {
-//        case Pair(_, r) => right match {
-//          case RegularValue(rv) => (Pair(0, rv + r), true)
-//          case Pair(_, _) => (Pair(0, 0), true)
-//        }
-//        case RegularValue(lv) => right match {
-//          case Pair(RegularValue(l), RegularValue(_)) => (Pair(lv + l, 0), true)
-//          case RegularValue(_) => (this, false)
-//        }
-//      }
-//    }
-//  }
-
-  override def toString: String = f"[${left.toString},${right.toString}]"
+  override def toString: String = f"[$left,$right]"
 }
 
 object Pair {
-  private val PATTERN = """(\d),(\d)"""r
+  def apply(l: Int, r: Int, depth: Int) = new Pair(Regular(l), Regular(r), depth)
+  def apply(l: Int, r: Value, depth: Int) = new Pair(Regular(l), r, depth)
+  def apply(l: Value, r: Int, depth: Int) = new Pair(l, Regular(r), depth)
 
   def parse(input: String): Pair = {
-    input match {
-      case PATTERN(l, r) => Pair(l.toInt, r.toInt)
-      case _ => throw new IllegalArgumentException(f"Not a Pair: $input")
+
+    @tailrec
+    def iter(values: List[Value], pos: Int, depth: Int): Pair = {
+      if (pos == input.length) {
+        values match {
+          case p :: Nil => p match {
+            case p: Pair => p
+          }
+          case _ => throw new IllegalArgumentException("Not a Pair")
+        }
+      } else {
+        val character = input.substring(pos, pos + 1)
+        character match {
+          case "[" => iter(values, pos + 1, depth + 1)
+          case "," =>
+            iter(values, pos + 1, depth)
+          case "]" =>
+            values match {
+              case r :: l :: xs =>
+                val pair = Pair(l, r, depth - 1)
+                iter(pair :: xs, pos + 1, depth - 1)
+              case _ => throw new IllegalArgumentException("Two Pairs needed at a ']'")
+            }
+
+          case s: String => iter(Regular(s.toInt) :: values, pos + 1, depth)
+        }
+      }
     }
+    iter(List(), 0, 0)
   }
-}
-case class RegularValue(value: Int) extends NumberLeaf {
-
-  def split: NumberLeaf = {
-    if (value < 10) this
-    else Pair(Math.floor(value/2.0).intValue(), BigDecimal(value/2.0, MC_UP).intValue)
-  }
-
-
-  override def toString: String = value.toString
-}
-
-object RegularValue {
-  private val DIGIT = "([0-9])" r
-  private val MC_UP = new MathContext(1, RoundingMode.UP)
-
-  def parse(input: String): NumberLeaf = {
-
-    input.substring(0, 1) match {
-      case DIGIT(v) => RegularValue(v.toInt)
-      case _ => throw new IllegalArgumentException(f"Not a number: $input")
-    }
-  }
-}
-
-case class NumberNode(left: NumberLeaf, right: NumberLeaf) extends NumberLeaf
-
-object NumberNode {
-  def apply(l: Pair, r: Int) = new NumberNode(l, RegularValue(r))
-  def apply(l: Int, r: Pair) = new NumberNode(RegularValue(l), r)
-
 }
 
 object Day18a extends App {
