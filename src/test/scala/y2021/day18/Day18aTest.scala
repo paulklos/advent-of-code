@@ -167,19 +167,18 @@ class Day18aTest extends AnyFlatSpec with GivenWhenThen with Matchers {
 //    Then("The result is correct")
 //    exploded shouldEqual (Pair(8,0), true)
 //  }
-//
-//  "The number [[[[[9,8],1],2],3],4]" must "be reduced to [[[[0,9],2],3],4]" in {
-//    Given("A snailfish number")
-//    val pair = Pair(Pair(Pair(Pair(Pair(9,8),1),2),3),4)
-//
-//    When("The number is reduced")
-//    val exploded = pair.reduce
-//
-//    Then("The result is correct")
-//    exploded shouldEqual Pair(Pair(Pair(Pair(0,9),2),3),4)
-//
-//  }
-//
+
+  "The number [[[[[9,8],1],2],3],4]" must "be reduced to [[[[0,9],2],3],4]" in {
+    Given("A snailfish number")
+    val pair = Pair.parse("[[[[[9,8],1],2],3],4]")
+
+    When("The number is reduced")
+    val exploded = pair.reduce
+
+    Then("The result is correct")
+    exploded shouldEqual Pair(Pair(Pair(Pair(0, 9, 3), 2, 2), 3, 1), 4, 0)
+  }
+
 //  "The number [[[[0,7],4],[15,[0,7]]],[1,1]]" must "be reduced to [[[[0,7],4],[[7,8],[0,7]]],[1,1]]" in {
 //    Given("A snailfish number")
 //    val pair = Pair(Pair(Pair(Pair(0,7),4),Pair(15,Pair(0,7))),Pair(1,1))

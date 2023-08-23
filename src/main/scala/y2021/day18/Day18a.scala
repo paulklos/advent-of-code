@@ -15,6 +15,13 @@ case class Regular(value: Int) extends Value {
 case class Pair(left: Value, right: Value, depth: Int) extends Value {
   override def incDepth: Value = Pair(left.incDepth, right.incDepth, depth + 1)
 
+  def reduce: Pair = {
+    val newLeft = left match {
+      case r: Regular => r
+      case Pair()
+    }
+    this
+  }
   override def toString: String = f"[$left,$right]"
 }
 
@@ -54,6 +61,7 @@ object Pair {
     }
     iter(List(), 0, 0)
   }
+
 }
 
 object Day18a extends App {
